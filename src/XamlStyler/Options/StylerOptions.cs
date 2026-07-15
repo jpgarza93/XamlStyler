@@ -251,6 +251,13 @@ namespace Xavalon.XamlStyler.Options
         [DefaultValue("x:Bind, Binding")]
         public string NoNewLineMarkupExtensions { get; set; }
 
+        [Category("Markup Extension")]
+        [DisplayName("New line for comma-delimited attribute values")]
+        [JsonProperty("NewLineForCommaDelimitedAttributeValues", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+        [Description("Defines whether to place comma-delimited attribute values each on their own line, aligned with the first value. Applies to plain string attributes (e.g. Avalonia Selector) and to markup extensions (respecting 'Keep markup extensions of these types on one line' — remove a type from that list to allow multi-line expansion).\r\n\r\nDefault Value: false")]
+        [DefaultValue(false)]
+        public bool NewLineForCommaDelimitedAttributeValues { get; set; }
+
         // Thickness formatting
         [Category("Thickness formatting")]
         [DisplayName("Thickness separator")]

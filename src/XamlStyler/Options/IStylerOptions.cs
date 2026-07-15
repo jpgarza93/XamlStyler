@@ -89,6 +89,8 @@ namespace Xavalon.XamlStyler.Options
 
         string NoNewLineMarkupExtensions { get; set; }
 
+        bool NewLineForCommaDelimitedAttributeValues { get; set; }
+
         #endregion Markup Extension
 
         #region Thickness formatting

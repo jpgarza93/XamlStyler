@@ -212,6 +212,25 @@ namespace Xavalon.XamlStyler.UnitTests
         }
 
         [Test]
+        public void TestNewLineForCommaDelimitedAttributeValues()
+        {
+            var stylerOptions = new StylerOptions
+            {
+                AttributesTolerance = 1,
+                KeepFirstAttributeOnSameLine = true,
+                MaxAttributesPerLine = 1,
+                IndentSize = 4,
+                EnableAttributeReordering = false,
+                NewLineForCommaDelimitedAttributeValues = true,
+                FormatMarkupExtension = false,
+                SpaceBeforeClosingSlash = true,
+                RemoveEndingTagOfEmptyElement = true,
+            };
+
+            FileHandlingIntegrationTests.DoTest(stylerOptions);
+        }
+
+        [Test]
         public void TestMarkupWithAttributeNotOnFirstLine()
         {
             var stylerOptions = new StylerOptions(

@@ -23,6 +23,7 @@
   "ReorderSetters": 1,
   "FormatMarkupExtension": false,
   "NoNewLineMarkupExtensions": "Binding",
+  "NewLineForCommaDelimitedAttributeValues": true,
   "ThicknessSeparator": 1,
   "ThicknessAttributes": "Margin",
   "FormatOnSave": false,

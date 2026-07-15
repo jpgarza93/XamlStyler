@@ -25,6 +25,7 @@ namespace Xavalon.XamlStyler.DocumentProcessors
         private readonly XmlEscapingService xmlEscapingService;
         private readonly IList<string> noNewLineElementsList;
         private readonly IList<string> firstLineAttributes;
+        private readonly IList<string> thicknessAttributes;
         private readonly string[] inlineCollections = { "TextBlock", "RichTextBlock", "Paragraph", "Run", "Span", "InlineUIContainer", "AnchoredBlock" };
         private readonly string[] inlineTypes = { "Paragraph", "Run", "Span", "InlineUIContainer", "AnchoredBlock", "Hyperlink", "Bold", "Italic", "Underline", "LineBreak" };
 
@@ -44,6 +45,7 @@ namespace Xavalon.XamlStyler.DocumentProcessors
             this.xmlEscapingService = xmlEscapingService;
             this.noNewLineElementsList = options.NoNewLineElements.ToList();
             this.firstLineAttributes = options.FirstLineAttributes.ToList();
+            this.thicknessAttributes = options.ThicknessAttributes.ToList();
         }
 
         public void Process(XmlReader xmlReader, StringBuilder output, ElementProcessContext elementProcessContext)
@@ -242,7 +244,8 @@ namespace Xavalon.XamlStyler.DocumentProcessors
                     }
 
                     // Attributes with markup extension, always put on new line
-                    if (attrInfo.IsMarkupExtension && this.options.FormatMarkupExtension)
+                    if (attrInfo.IsMarkupExtension
+                        && (this.options.FormatMarkupExtension || this.options.NewLineForCommaDelimitedAttributeValues))
                     {
                         if (currentLineBuffer.Length > 0)
                         {
@@ -253,6 +256,23 @@ namespace Xavalon.XamlStyler.DocumentProcessors
 
                         attributeLines.Add(
                             this.attributeInfoFormatter.ToMultiLineString(attrInfo, attributeIndentationString));
+                    }
+                    else if (this.options.NewLineForCommaDelimitedAttributeValues
+                        && !attrInfo.IsMarkupExtension
+                        && attrInfo.Value.Contains(',')
+                        && !this.thicknessAttributes.Contains(attrInfo.Name)
+                        && !this.IsThicknessSetterValue(attrInfo, list))
+                    {
+                        // Plain string attribute with comma-delimited values: put each on its own line
+                        if (currentLineBuffer.Length > 0)
+                        {
+                            attributeLines.Add(currentLineBuffer.ToString());
+                            currentLineBuffer.Length = 0;
+                            attributeCountInCurrentLineBuffer = 0;
+                        }
+
+                        attributeLines.Add(
+                            this.attributeInfoFormatter.ToCommaDelimitedMultiLineString(attrInfo, attributeIndentationString, xamlLanguageOptions));
                     }
                     else
                     {
@@ -371,6 +391,22 @@ namespace Xavalon.XamlStyler.DocumentProcessors
         private bool IsFirstLineAttribute(string attributeName)
         {
             return this.firstLineAttributes.Contains(attributeName);
+        }
+
+        /// <summary>
+        /// Returns true when <paramref name="attrInfo"/> is a "Value" attribute on a Setter element
+        /// whose "Property" sibling refers to a thickness attribute (e.g. Margin, Padding).
+        /// Prevents comma-delimited splitting of thickness values like "1,2,3,4".
+        /// </summary>
+        private bool IsThicknessSetterValue(AttributeInfo attrInfo, IList<AttributeInfo> siblings)
+        {
+            if (!attrInfo.Name.Equals("Value", StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            return siblings.Any(a => a.Name.Equals("Property", StringComparison.Ordinal)
+                && this.thicknessAttributes.Contains(a.Value));
         }
 
         private bool IsNoLineBreakElement(string elementName)
