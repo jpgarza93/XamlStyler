@@ -244,8 +244,7 @@ namespace Xavalon.XamlStyler.DocumentProcessors
                     }
 
                     // Attributes with markup extension, always put on new line
-                    if (attrInfo.IsMarkupExtension
-                        && (this.options.FormatMarkupExtension || this.options.NewLineForCommaDelimitedAttributeValues))
+                    if (attrInfo.IsMarkupExtension && this.options.FormatMarkupExtension)
                     {
                         if (currentLineBuffer.Length > 0)
                         {
