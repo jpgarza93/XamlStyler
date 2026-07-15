@@ -1,5 +1,6 @@
 // (c) Xavalon. All rights reserved.
 
+using System;
 using NUnit.Framework;
 using Xavalon.XamlStyler.MarkupExtensions.Formatter;
 using Xavalon.XamlStyler.Model;
@@ -64,7 +65,8 @@ namespace Xavalon.XamlStyler.UnitTests.MarkupExtensions
 
             var result = this.formatter.ToCommaDelimitedMultiLineString(attrInfo, baseIndent, xamlLanguageOptions);
 
-            Assert.That(result, Is.EqualTo(expected));
+            // Normalize \n in expected to platform line ending so tests pass on both Windows and Unix
+            Assert.That(result, Is.EqualTo(expected.Replace("\n", Environment.NewLine)));
         }
     }
 }
