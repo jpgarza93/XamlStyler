@@ -3,5 +3,7 @@
         Title="Test">
     <Style x:Key="ButtonStyle" Selector="ContentControl Button, ContentControl StackPanel">
         <Setter Property="IsVisible" Value="True" />
+        <Setter Property="Margin" Value="1,2,3,4" />
     </Style>
+    <TextBlock Text="{Binding Path=Name, UpdateSourceTrigger=PropertyChanged}" />
 </Window>
