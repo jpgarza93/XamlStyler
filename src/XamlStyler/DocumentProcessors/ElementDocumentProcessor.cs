@@ -181,6 +181,21 @@ namespace Xavalon.XamlStyler.DocumentProcessors
             var noLineBreakInAttributes = (list.Count <= this.options.AttributesTolerance) || isNoLineBreakElement;
             var forceLineBreakInAttributes = false;
 
+            // If comma-delimited splitting is enabled, force multi-line when any plain-string
+            // attribute contains commas — even if the element is under the attribute tolerance.
+            // Intentionally skips isNoLineBreakElement (e.g. Setter) since those are already
+            // excluded by the thickness guards inside the multi-line path.
+            if (noLineBreakInAttributes
+                && !isNoLineBreakElement
+                && this.options.NewLineForCommaDelimitedAttributeValues
+                && list.Any(a => !a.IsMarkupExtension
+                    && a.Value.Contains(',')
+                    && !this.thicknessAttributes.Contains(a.Name)
+                    && !this.IsThicknessSetterValue(a, list)))
+            {
+                noLineBreakInAttributes = false;
+            }
+
             // Root element?
             if (elementProcessContext.Count == 2)
             {
