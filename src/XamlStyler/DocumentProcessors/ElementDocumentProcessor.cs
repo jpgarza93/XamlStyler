@@ -25,7 +25,7 @@ namespace Xavalon.XamlStyler.DocumentProcessors
         private readonly XmlEscapingService xmlEscapingService;
         private readonly IList<string> noNewLineElementsList;
         private readonly IList<string> firstLineAttributes;
-        private readonly IList<string> thicknessAttributes;
+        private readonly IList<string> commaDelimitedValueAttributes;
         private readonly string[] inlineCollections = { "TextBlock", "RichTextBlock", "Paragraph", "Run", "Span", "InlineUIContainer", "AnchoredBlock" };
         private readonly string[] inlineTypes = { "Paragraph", "Run", "Span", "InlineUIContainer", "AnchoredBlock", "Hyperlink", "Bold", "Italic", "Underline", "LineBreak" };
 
@@ -45,7 +45,7 @@ namespace Xavalon.XamlStyler.DocumentProcessors
             this.xmlEscapingService = xmlEscapingService;
             this.noNewLineElementsList = options.NoNewLineElements.ToList();
             this.firstLineAttributes = options.FirstLineAttributes.ToList();
-            this.thicknessAttributes = options.ThicknessAttributes.ToList();
+            this.commaDelimitedValueAttributes = options.NewLineForCommaDelimitedValueAttributes.ToList();
         }
 
         public void Process(XmlReader xmlReader, StringBuilder output, ElementProcessContext elementProcessContext)
@@ -181,17 +181,12 @@ namespace Xavalon.XamlStyler.DocumentProcessors
             var noLineBreakInAttributes = (list.Count <= this.options.AttributesTolerance) || isNoLineBreakElement;
             var forceLineBreakInAttributes = false;
 
-            // If comma-delimited splitting is enabled, force multi-line when any plain-string
-            // attribute contains commas — even if the element is under the attribute tolerance.
-            // Intentionally skips isNoLineBreakElement (e.g. Setter) since those are already
-            // excluded by the thickness guards inside the multi-line path.
+            // If any configured comma-delimited value attribute is present with commas, force
+            // multi-line even when the element is under the attribute tolerance. Only attributes
+            // explicitly listed in NewLineForCommaDelimitedValueAttributes are ever split.
             if (noLineBreakInAttributes
-                && !isNoLineBreakElement
-                && this.options.NewLineForCommaDelimitedAttributeValues
-                && list.Any(a => !a.IsMarkupExtension
-                    && a.Value.Contains(',')
-                    && !this.thicknessAttributes.Contains(a.Name)
-                    && !this.IsThicknessSetterValue(a, list)))
+                && this.commaDelimitedValueAttributes.Count > 0
+                && list.Any(this.ShouldSplitCommaDelimitedValue))
             {
                 noLineBreakInAttributes = false;
             }
@@ -271,13 +266,9 @@ namespace Xavalon.XamlStyler.DocumentProcessors
                         attributeLines.Add(
                             this.attributeInfoFormatter.ToMultiLineString(attrInfo, attributeIndentationString));
                     }
-                    else if (this.options.NewLineForCommaDelimitedAttributeValues
-                        && !attrInfo.IsMarkupExtension
-                        && attrInfo.Value.Contains(',')
-                        && !this.thicknessAttributes.Contains(attrInfo.Name)
-                        && !this.IsThicknessSetterValue(attrInfo, list))
+                    else if (this.ShouldSplitCommaDelimitedValue(attrInfo))
                     {
-                        // Plain string attribute with comma-delimited values: put each on its own line
+                        // Configured comma-delimited value attribute: put each value on its own line
                         if (currentLineBuffer.Length > 0)
                         {
                             attributeLines.Add(currentLineBuffer.ToString());
@@ -408,19 +399,16 @@ namespace Xavalon.XamlStyler.DocumentProcessors
         }
 
         /// <summary>
-        /// Returns true when <paramref name="attrInfo"/> is a "Value" attribute on a Setter element
-        /// whose "Property" sibling refers to a thickness attribute (e.g. Margin, Padding).
-        /// Prevents comma-delimited splitting of thickness values like "1,2,3,4".
+        /// Returns true when <paramref name="attrInfo"/> is a plain-string attribute whose name is
+        /// in the configured NewLineForCommaDelimitedValueAttributes list and whose value contains
+        /// commas to split on. Markup extensions are excluded — they are handled separately by
+        /// FormatMarkupExtension.
         /// </summary>
-        private bool IsThicknessSetterValue(AttributeInfo attrInfo, IList<AttributeInfo> siblings)
+        private bool ShouldSplitCommaDelimitedValue(AttributeInfo attrInfo)
         {
-            if (!attrInfo.Name.Equals("Value", StringComparison.Ordinal))
-            {
-                return false;
-            }
-
-            return siblings.Any(a => a.Name.Equals("Property", StringComparison.Ordinal)
-                && this.thicknessAttributes.Contains(a.Value));
+            return !attrInfo.IsMarkupExtension
+                && this.commaDelimitedValueAttributes.Contains(attrInfo.Name)
+                && attrInfo.Value.Contains(',');
         }
 
         private bool IsNoLineBreakElement(string elementName)

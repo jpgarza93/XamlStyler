@@ -75,12 +75,17 @@ namespace Xavalon.XamlStyler.MarkupExtensions.Formatter
         /// <returns></returns>
         public string ToCommaDelimitedMultiLineString(AttributeInfo attrInfo, string baseIndentationString, XamlLanguageOptions xamlLanguageOptions)
         {
+            if (attrInfo.IsMarkupExtension)
+            {
+                throw new ArgumentException(
+                    "AttributeInfo shall have a plain (non-markup-extension) value.",
+                    MethodBase.GetCurrentMethod().GetParameters()[0].Name);
+            }
+
             // alignment indent = base + name + ="
             string valueIndentationString = baseIndentationString + new string(' ', attrInfo.Name.Length + 2);
 
-            string rawValue = attrInfo.IsMarkupExtension
-                ? this.formatter.FormatSingleLine(attrInfo.MarkupExtension)
-                : attrInfo.Value.ToXmlEncodedString(xamlLanguageOptions.UnescapedAttributeCharacters);
+            string rawValue = attrInfo.Value.ToXmlEncodedString(xamlLanguageOptions.UnescapedAttributeCharacters);
 
             // Split on commas, preserving the comma at end of each segment except the last
             var parts = rawValue.Split(',');

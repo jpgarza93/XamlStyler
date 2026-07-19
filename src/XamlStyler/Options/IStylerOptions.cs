@@ -36,6 +36,8 @@ namespace Xavalon.XamlStyler.Options
 
         string NoNewLineElements { get; set; }
 
+        string NewLineForCommaDelimitedValueAttributes { get; set; }
+
         bool PutAttributeOrderRuleGroupsOnSeparateLines { get; set; }
 
         int AttributeIndentation { get; set; }
@@ -88,8 +90,6 @@ namespace Xavalon.XamlStyler.Options
         bool FormatMarkupExtension { get; set; }
 
         string NoNewLineMarkupExtensions { get; set; }
-
-        bool NewLineForCommaDelimitedAttributeValues { get; set; }
 
         #endregion Markup Extension
 

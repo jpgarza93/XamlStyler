@@ -106,6 +106,13 @@ namespace Xavalon.XamlStyler.Options
         public string NoNewLineElements { get; set; }
 
         [Category("Attribute Formatting")]
+        [DisplayName("New line for comma-delimited value attributes")]
+        [JsonProperty("NewLineForCommaDelimitedValueAttributes", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+        [Description("Defines a comma-separated list of attribute names whose comma-delimited values are placed each on their own line, aligned with the first value. Only whitespace-insensitive attributes should be listed (e.g. Avalonia Selector); listing attributes whose values are whitespace-sensitive (such as display text or format strings) would corrupt their values. Empty means the feature is disabled.\r\n\r\nDefault Value: (empty)")]
+        [DefaultValue("")]
+        public string NewLineForCommaDelimitedValueAttributes { get; set; }
+
+        [Category("Attribute Formatting")]
         [DisplayName("Separate by groups")]
         [JsonProperty("SeparateByGroups", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
         [Description("Defines whether attributes belonging to different rule groups should be put on separate lines, while, if possible, keeping attributes in the same group on the same line.\r\n\r\nDefault Value: false")]
@@ -250,13 +257,6 @@ namespace Xavalon.XamlStyler.Options
         [Description("Defines a comma-separated list of Markup Extensions that are always kept on a single line\r\n\r\nDefault Value: x:Bind, Binding")]
         [DefaultValue("x:Bind, Binding")]
         public string NoNewLineMarkupExtensions { get; set; }
-
-        [Category("Attribute Formatting")]
-        [DisplayName("New line for comma-delimited attribute values")]
-        [JsonProperty("NewLineForCommaDelimitedAttributeValues", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
-        [Description("Defines whether to place comma-delimited plain string attribute values each on their own line, aligned with the first value (e.g. Avalonia Selector). Does not affect markup extensions — use 'Enable markup extension formatting' for those.\r\n\r\nDefault Value: false")]
-        [DefaultValue(false)]
-        public bool NewLineForCommaDelimitedAttributeValues { get; set; }
 
         // Thickness formatting
         [Category("Thickness formatting")]

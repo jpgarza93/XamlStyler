@@ -8,5 +8,5 @@
     <Style Selector="ListBox ListBoxItem:pointerover, ListBox ListBoxItem:selected">
         <Setter Property="Background" Value="Red" />
     </Style>
-    <TextBlock x:Name="MyText" Text="{Binding Path=Name, UpdateSourceTrigger=PropertyChanged}" />
+    <TextBlock x:Name="MyText" Text="Hello, world" ToolTip.Tip="{Binding Path=Name, UpdateSourceTrigger=PropertyChanged}" />
 </Window>

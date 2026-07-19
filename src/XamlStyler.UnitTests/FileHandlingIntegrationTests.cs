@@ -221,7 +221,7 @@ namespace Xavalon.XamlStyler.UnitTests
                 MaxAttributesPerLine = 1,
                 IndentSize = 4,
                 EnableAttributeReordering = false,
-                NewLineForCommaDelimitedAttributeValues = true,
+                NewLineForCommaDelimitedValueAttributes = "Selector",
                 FormatMarkupExtension = false,
                 SpaceBeforeClosingSlash = true,
                 RemoveEndingTagOfEmptyElement = true,
